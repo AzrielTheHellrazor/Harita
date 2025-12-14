@@ -4,8 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
 import { createConfig, http } from "wagmi";
-import { coinbaseWallet } from "wagmi/connectors";
-import { useState } from "react";
+import { baseAccount } from "wagmi/connectors";
+import { useState, useEffect } from "react";
+import { useConnect } from "wagmi";
 
 export function MiniKitProvider({ children }: { children: React.ReactNode }) {
   // QueryClient oluştur (her render'da yeni instance oluşturmamak için)
@@ -17,7 +18,7 @@ export function MiniKitProvider({ children }: { children: React.ReactNode }) {
     createConfig({
       chains: [base],
       connectors: [
-        coinbaseWallet({
+        baseAccount({
           appName: "Harita Uygulamasi",
           appLogoUrl: typeof window !== "undefined" ? `${window.location.origin}/logo.png` : "",
         }),
@@ -28,9 +29,29 @@ export function MiniKitProvider({ children }: { children: React.ReactNode }) {
     })
   );
 
+  // Auto-connect component
+  function AutoConnect() {
+    const { connect, connectors, isConnected } = useConnect();
+    
+    useEffect(() => {
+      // Base App içinde açıldığında otomatik bağlan
+      if (!isConnected && connectors.length > 0) {
+        const baseAccountConnector = connectors.find(
+          (c) => c.type === "baseAccount" || c.id === "baseAccount"
+        );
+        if (baseAccountConnector) {
+          connect({ connector: baseAccountConnector });
+        }
+      }
+    }, [isConnected, connectors, connect]);
+
+    return null;
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
+        <AutoConnect />
         {children}
       </QueryClientProvider>
     </WagmiProvider>
