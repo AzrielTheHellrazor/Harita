@@ -4,9 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
 import { createConfig, http } from "wagmi";
-import { baseAccount } from "wagmi/connectors";
+import { coinbaseWallet } from "wagmi/connectors";
 import { useState, useEffect } from "react";
-import { useConnect } from "wagmi";
+import { useConnect, useAccount } from "wagmi";
 
 export function MiniKitProvider({ children }: { children: React.ReactNode }) {
   // QueryClient oluştur (her render'da yeni instance oluşturmamak için)
@@ -18,7 +18,7 @@ export function MiniKitProvider({ children }: { children: React.ReactNode }) {
     createConfig({
       chains: [base],
       connectors: [
-        baseAccount({
+        coinbaseWallet({
           appName: "Harita Uygulamasi",
           appLogoUrl: typeof window !== "undefined" ? `${window.location.origin}/logo.png` : "",
         }),
@@ -29,18 +29,29 @@ export function MiniKitProvider({ children }: { children: React.ReactNode }) {
     })
   );
 
-  // Auto-connect component
+  // Auto-connect component - Base App içinde otomatik bağlan
   function AutoConnect() {
-    const { connect, connectors, isConnected } = useConnect();
+    const { connect, connectors } = useConnect();
+    const { isConnected } = useAccount();
     
     useEffect(() => {
       // Base App içinde açıldığında otomatik bağlan
-      if (!isConnected && connectors.length > 0) {
-        const baseAccountConnector = connectors.find(
-          (c) => c.type === "baseAccount" || c.id === "baseAccount"
-        );
-        if (baseAccountConnector) {
-          connect({ connector: baseAccountConnector });
+      // Base App, window.coinbaseSDK veya window.ethereum üzerinden otomatik bağlanır
+      if (!isConnected && typeof window !== "undefined") {
+        // Base App içinde mi kontrol et
+        const isBaseApp = 
+          (window as any).coinbaseSDK || 
+          (window as any).ethereum?.isCoinbaseWallet ||
+          navigator.userAgent.includes("BaseApp");
+        
+        if (isBaseApp && connectors.length > 0) {
+          // Coinbase Wallet connector'ını bul ve bağlan
+          const coinbaseConnector = connectors.find(
+            (c) => c.id === "coinbaseWallet" || c.name === "Coinbase Wallet"
+          );
+          if (coinbaseConnector) {
+            connect({ connector: coinbaseConnector });
+          }
         }
       }
     }, [isConnected, connectors, connect]);
