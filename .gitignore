@@ -35,3 +35,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# large data files
+all_food_places.json
+
+# API keys and sensitive files
+apiler.txt
+*.key
+*.secret
+
