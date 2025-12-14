@@ -12,6 +12,8 @@ const miniapp = {
   version: "1",
   homeUrl: "https://haritam1.vercel.app/",
   imageUrl: "https://ibb.co/Y4T50ZS8",
+  splashImageUrl: "https://haritam1.vercel.app/logo.png",
+  splashBackgroundColor: "#d4a657",
 };
 
 export const metadata: Metadata = {
@@ -38,6 +40,9 @@ export const metadata: Metadata = {
         action: {
           type: "launch_frame",
           url: miniapp.homeUrl,
+          name: miniapp.name,
+          splashImageUrl: miniapp.splashImageUrl,
+          splashBackgroundColor: miniapp.splashBackgroundColor,
         },
       },
     }),
