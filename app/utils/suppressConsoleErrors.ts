@@ -32,12 +32,21 @@ if (typeof window !== "undefined") {
 
   // Metamask loglarını suppress et (Base Mini App'te Metamask kullanılmıyor)
   console.log = (...args: any[]) => {
-    const message = JSON.stringify(args);
+    // Tüm argümanları string'e çevir ve kontrol et
+    const message = args.map(arg => {
+      if (typeof arg === 'string') return arg;
+      if (typeof arg === 'object') return JSON.stringify(arg);
+      return String(arg);
+    }).join(' ');
+    
+    // Metamask ile ilgili herhangi bir log'u filtrele
     if (
-      message.includes("metamask") ||
+      message.toLowerCase().includes("metamask") ||
       message.includes("metamask-provider") ||
       message.includes("metamask-inpage") ||
-      message.includes("metamask_chainChanged")
+      message.includes("metamask_chainChanged") ||
+      message.includes("chainChanged") ||
+      (message.includes("target") && message.includes("metamask"))
     ) {
       return; // Metamask loglarını gösterme
     }

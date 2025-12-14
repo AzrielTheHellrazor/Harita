@@ -64,22 +64,40 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Base Mini App ready callback
+              // Base Mini App ready callback - Immediate execution
               (function() {
-                if (typeof window !== 'undefined') {
+                function callReady() {
                   // Base Mini App SDK ready callback
                   if (window.miniKit && typeof window.miniKit.ready === 'function') {
-                    window.miniKit.ready();
+                    try {
+                      window.miniKit.ready();
+                    } catch (e) {}
                   }
                   
                   // Alternative: Coinbase SDK ready callback
                   if (window.coinbaseSDK && typeof window.coinbaseSDK.ready === 'function') {
-                    window.coinbaseSDK.ready();
+                    try {
+                      window.coinbaseSDK.ready();
+                    } catch (e) {}
                   }
                   
                   // Dispatch ready event
                   window.dispatchEvent(new Event('minikit:ready'));
                 }
+                
+                // Call immediately
+                callReady();
+                
+                // Also call when DOM is ready
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', callReady);
+                } else {
+                  callReady();
+                }
+                
+                // Also call after a short delay to ensure SDK is loaded
+                setTimeout(callReady, 100);
+                setTimeout(callReady, 500);
               })();
             `,
           }}
