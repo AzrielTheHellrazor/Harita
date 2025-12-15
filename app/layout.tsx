@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "./utils/suppressConsoleErrors";
-import { MiniKitProvider } from "./components/MiniKitProvider";
+import { RootProvider } from "./rootProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -83,9 +83,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body className={inter.className}>
-        <MiniKitProvider>
+        <RootProvider>
           {children}
-        </MiniKitProvider>
+        </RootProvider>
       </body>
     </html>
   );
